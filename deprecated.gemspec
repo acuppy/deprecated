@@ -5,7 +5,6 @@ spec.author = "Erik Hollensbe"
 spec.email = "erik@hollensbe.org"
 spec.summary = "An easy way to handle deprecating and conditionally running deprecated code"
 spec.has_rdoc = true
-spec.autorequire = "deprecated"
 spec.files = Dir['lib/deprecated.rb'] + Dir['test/deprecated.rb']
 spec.test_file = "test/deprecated.rb"
 spec.rubyforge_project = 'deprecated'

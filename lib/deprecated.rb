@@ -1,5 +1,5 @@
 #
-# Deprecate - handle deprecating and executing deprecated code
+# Deprecated - handle deprecating and executing deprecated code
 #
 # Version:: 2.0.1
 # Author:: Erik Hollensbe
@@ -7,13 +7,13 @@
 # Copyright:: Copyright (c) 2006 Erik Hollensbe
 # Contact:: erik@hollensbe.org
 #
-# Deprecate is intended to ease the programmer's control over
+# Deprecated is intended to ease the programmer's control over
 # deprecating and handling deprecated code.
 #
 # Usage is simple:
 #
 #   # require 'rubygems' if need be
-#   require 'deprecate'
+#   require 'deprecated'
 #   
 #   class Foo
 #     private
@@ -26,7 +26,7 @@
 #     deprecate :monkey, :private
 #   end
 #
-# The 'deprecate' call is injected into the 'Module' class at
+# The 'deprecated' call is injected into the 'Module' class at
 # require-time. This allows all classes that are newly-created to
 # access the 'deprecate' functionality. The deprecate definition must
 # follow the method definition. You may only define one deprecated
@@ -46,7 +46,7 @@
 # Note: It's highly recommended that you make your original methods
 # private so that they cannot be accessed by outside code.
 #
-# Deprecate.set_action can change the default action (which is a
+# Deprecated.set_action can change the default action (which is a
 # warning printed to stderr) if you prefer. This is ideal for code
 # sweeps where deprecated calls have to be removed. Please see the
 # documentation for this method to get an idea of the options that are
@@ -79,7 +79,7 @@
 #
 #++
 
-module Deprecate
+module Deprecated
   
   #
   # set_action defines the action that will be taken when code marked
@@ -106,10 +106,10 @@ module Deprecate
   # Ex:
   #
   #    # throws with the error message saying: "FIXME: Class#meth"
-  #    Deprecate.set_action(:throw, "FIXME: %s")
+  #    Deprecated.set_action(:throw, "FIXME: %s")
   #
   #    # emails your boss everytime you run deprecated code
-  #    Deprecate.set_action proc do |msg|
+  #    Deprecated.set_action proc do |msg|
   #       f = IO.popen('mail boss@company -s "Joe still hasn't fixed %s"' % msg, 'w')
   #       f.puts("Sorry, I still haven't fixed %s, please stop making me go to meetings.\n" % msg)
   #       f.close
@@ -118,11 +118,11 @@ module Deprecate
   
   @@action = nil
   
-  def Deprecate.action
+  def Deprecated.action
     return @@action
   end
   
-  def Deprecate.set_action(action, message="%s is deprecated.")
+  def Deprecated.set_action(action, message="%s is deprecated.")
     if action.kind_of? Proc
       @@action = action
       return
@@ -147,10 +147,10 @@ module Deprecate
 end
 
 #
-# This is the class of the errors that the 'Deprecate' module will
+# This is the class of the errors that the 'Deprecated' module will
 # throw if the action type is set to ':throw'.
 #
-# See Deprecate.set_action for more information.
+# See Deprecated.set_action for more information.
 #
 class DeprecatedError < Exception
   attr_reader :message
@@ -176,7 +176,7 @@ Module.send(:define_method, :deprecate,
               old_method = self.instance_method(sym)
               
               define_method(sym) do |*sendparams|
-                Deprecate.action.call(self.class.to_s + '#' + sym.to_s)
+                Deprecated.action.call(self.class.to_s + '#' + sym.to_s)
                 new_method = self.class.instance_method(sym)
                 retval = old_method.bind(self).call(*sendparams)
                 new_method.bind(self)
@@ -194,4 +194,6 @@ Module.send(:define_method, :deprecate,
               
             end)
 
-Deprecate.set_action(:warn)
+Deprecated.set_action(:warn)
+
+Deprecate = Deprecated
