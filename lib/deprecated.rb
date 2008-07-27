@@ -1,7 +1,7 @@
 #
 # Deprecate - handle deprecating and executing deprecated code
 #
-# Version:: 2.0.0
+# Version:: 2.0.1
 # Author:: Erik Hollensbe
 # License:: BSD
 # Copyright:: Copyright (c) 2006 Erik Hollensbe
