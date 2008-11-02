@@ -80,6 +80,8 @@
 #++
 
 module Deprecated
+
+  VERSION = "2.0.1"
   
   #
   # set_action defines the action that will be taken when code marked
