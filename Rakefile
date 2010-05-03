@@ -12,7 +12,7 @@ $:.unshift 'lib'
 require 'rake/testtask'
 require 'rake/packagetask'
 require 'rake/gempackagetask'
-require 'rake/rdoctask'
+require 'rdoc/task'
 require 'deprecated'
 
 task :default => [ :dist ]
@@ -35,15 +35,20 @@ task :dist      => [:test, :repackage, :gem, :rdoc]
 task :distclean => [:clobber_package, :clobber_rdoc]
 task :clean     => [:distclean]
 
+task :to_blog => [:clobber_rdoc, :rdoc] do
+    sh "rm -r $git/blog/content/docs/deprecated && mv rdoc $git/blog/content/docs/deprecated"
+end
+
+
 #
 # Documentation
 #
 
-Rake::RDocTask.new do |rd|
+RDoc::Task.new do |rd|
     rd.rdoc_dir = "rdoc"
     rd.main = "Deprecated"
     rd.rdoc_files.include("./lib/**/*.rb")
-    rd.options = %w(-ap)
+    rd.options = %w(-a)
 end
 
 #
