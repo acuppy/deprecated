@@ -55,7 +55,6 @@ end
 # Packaging
 # 
 
-
 spec = Gem::Specification.new do |s|
     s.name = "deprecated"
     s.version = Deprecated::VERSION

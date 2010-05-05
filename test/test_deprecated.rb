@@ -1,33 +1,82 @@
 #!/usr/bin/env ruby
 
-require 'lib/deprecated.rb'
+require 'rubygems'
+gem 'test-unit'
 require 'test/unit'
+require 'lib/deprecated.rb'
 
 # this class is used to test the deprecate functionality
 class DummyClass
-  def monkey
-    return true
-  end
+    include Deprecated
 
-  deprecate :monkey
+    def monkey
+        return true
+    end
+
+    deprecated :monkey
+
+    protected
+
+    def my_protected 
+        return true
+    end
+
+    deprecated :my_protected
+
+    private
+
+    def my_private
+        return true
+    end
+
+    deprecated :my_private
+end
+
+class DummyClass2
+    include Deprecated
+
+    deprecated_set_action do |klass, sym|
+        raise DeprecatedError, "foo!"
+    end
+
+    def monkey
+        return true
+    end
+
+    deprecated :monkey
 end
 
 # we want exceptions for testing here.
-Deprecate.set_action(:throw)
+Deprecated.set_action(:raise)
 
 class DeprecateTest < Test::Unit::TestCase
-  def test_set_action
-     
-    assert_raise(DeprecatedError) { raise StandardError.new unless DummyClass.new.monkey }
+    def test_set_action
+        assert_raises(DeprecatedError) { raise StandardError.new unless DummyClass.new.monkey }
 
-    Deprecate.set_action(proc { |msg| raise DeprecatedError.new("#{msg} is deprecated.") })
+        Deprecated.set_action { |klass, sym| raise DeprecatedError.new("#{klass}##{sym} is deprecated.") }
+        assert_raises(DeprecatedError) { raise StandardError.new unless DummyClass.new.monkey }
 
-    assert_raise(DeprecatedError) { raise StandardError.new unless DummyClass.new.monkey }
-   
+        # set to warn and make sure our return values are getting through.
+        Deprecated.set_action(:warn)
+        assert(DummyClass.new.monkey)
+    end
 
-    # set to warn and make sure our return values are getting through.
-    Deprecate.set_action(:warn)
-    
-    assert_nothing_raised(DeprecatedError) { raise StandardError.new unless DummyClass.new.monkey } 
-  end
+    def test_scope
+        assert(
+            DummyClass.public_instance_methods.include?(:monkey) ||
+            DummyClass.public_instance_methods.include?("monkey")
+        )
+        assert(
+            DummyClass.protected_instance_methods.include?(:my_protected) ||
+            DummyClass.protected_instance_methods.include?("my_protected")
+        )
+        assert(
+            DummyClass.private_instance_methods.include?(:my_private) ||
+            DummyClass.private_instance_methods.include?("my_private")
+        )
+    end
+
+    def test_scoped_actions
+        assert_raises(DeprecatedError.new("foo!")) { DummyClass2.new.monkey }
+    end
 end
