@@ -46,7 +46,8 @@ end
 
 RDoc::Task.new do |rd|
     rd.rdoc_dir = "rdoc"
-    rd.main = "Deprecated"
+    rd.main = "README"
+    rd.rdoc_files.include("README")
     rd.rdoc_files.include("./lib/**/*.rb")
     rd.options = %w(-a)
 end

@@ -1,0 +1,67 @@
+Deprecated is a module to help you deprecate code BEFORE you remove it. Don't
+surprise your users, deprecate them!
+
+Usage is simple:
+
+    class Foo
+      include Deprecated
+
+      def moo
+        "cow"
+      end
+
+      deprecated :moo
+
+      def sheep
+        "baaa"
+      end
+
+      deprecated :sheep, "Sounds#baa"
+
+      protected
+
+      def bar
+        true
+      end
+
+      deprecated :bar
+    end
+    
+    Foo.new.moo # warns that the call is deprecated
+    
+    Deprecated.set_action(:raise)
+    Foo.new.moo # raises with the same message
+
+    Deprecated.set_action do |klass, sym, replacement|
+      email_boss(
+        "Someone tried to use #{klass}##{sym}! " +
+        "They should be using #{replacement} instead!"
+      )
+    end
+
+    Foo.new.sheep # do I really need to explain?
+
+    Foo.new.bar # still protected!
+
+Let's do it live!
+
+    class Bar
+      include Deprecated
+
+      # sets it just for this class
+      deprecated_set_action do |klass, sym, replacement|
+        email_boss(
+          "Someone tried to use #{klass}##{sym}! " +
+          "They should be using #{replacement} instead!"
+        )
+      end
+
+      def cow
+        "moo"
+      end
+
+      deprecate :cow # emails your boss when called!
+    end
+
+Please see Deprecated::Module#deprecated, Deprecated.set_action, and
+Deprecated::Module#deprecated_set_action for more information.

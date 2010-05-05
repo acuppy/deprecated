@@ -40,7 +40,7 @@ end
 class DummyClass2
     include Deprecated
 
-    deprecated_set_action do |klass, sym|
+    deprecated_set_action do |klass, sym, replacement|
         raise DeprecatedError, "foo!"
     end
 
