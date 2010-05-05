@@ -3,12 +3,22 @@ class DeprecatedError < StandardError; end
 module Deprecated
     VERSION = "3.0.0"
 
-    def __deprecated_run_action__(sym)
+    def __deprecated_run_action__(sym, replacement)
         if self.class.instance_eval { @__deprecated_run_action__ }
-            self.class.instance_eval { @__deprecated_run_action__ }.call(self.class, sym) 
+            self.class.instance_eval { @__deprecated_run_action__ }.call(self.class, sym, replacement) 
         else
-            Deprecated.run_action(self.class, sym)
+            Deprecated.run_action(self.class, sym, replacement)
         end
+    end
+
+    def self.build_message(klass, sym, replacement)
+        message = "#{klass}##{sym} is deprecated."
+
+        if replacement
+            message += " Please use #{replacement}."
+        end
+
+        return message
     end
 
     def self.set_action(type=nil, &block)
@@ -17,20 +27,20 @@ module Deprecated
                   else
                       case type
                       when :warn
-                          proc { |klass, sym| warn "#{klass}##{sym} is deprecated." }
-                      when :die
-                          proc { |klass, sym| fail "#{klass}##{sym} is deprecated." }
+                          proc { |*args| warn build_message(*args) }
+                      when :fail
+                          proc { |*args| fail build_message(*args) }
                       when :raise
-                          proc { |klass, sym| raise DeprecatedError, "#{klass}##{sym} is deprecated." }
+                          proc { |*args| raise DeprecatedError, build_message(*args) }
                       else
                           raise ArgumentError, "you must provide a symbol or a block to set_action()."
                       end
                   end
     end
 
-    def self.run_action(klass, sym)
-        raise "no hook" unless @action
-        @action.call(klass, sym)
+    def self.run_action(klass, sym, replacement)
+        raise "run_action has no associated hook" unless @action
+        @action.call(klass, sym, replacement)
     end
 
     def self.action
@@ -40,9 +50,10 @@ end
 
 module Deprecated
     module Module
-        def deprecated(sym, scope=nil)
-
-            raise ArgumentError, "deprecated() requires symbols for its arguments" unless sym.kind_of?(Symbol)
+        def deprecated(sym, replacement=nil, scope=nil)
+            unless sym.kind_of?(Symbol)
+                raise ArgumentError, "deprecated() requires symbols for its first argument." 
+            end
 
             meth = instance_method(sym)
             unless scope
@@ -60,7 +71,7 @@ module Deprecated
 
             define_method(sym) do |*args|
                 dep_meth = method(sym).unbind
-                __deprecated_run_action__(sym)
+                __deprecated_run_action__(sym, replacement)
                 retval = meth.bind(self).call(*args) 
                 dep_meth.bind(self)
                 return retval
@@ -80,3 +91,5 @@ module Deprecated
         base.extend(Module)
     end
 end
+
+Deprecated.set_action(:warn)
