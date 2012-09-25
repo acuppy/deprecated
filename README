@@ -65,3 +65,6 @@ Let's do it live!
 
 Please see Deprecated::Module#deprecated, Deprecated.set_action, and
 Deprecated::Module#deprecated_set_action for more information.
+
+This library is released under the MIT license:
+* http://www.opensource.org/licenses/MIT
