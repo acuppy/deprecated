@@ -2,18 +2,14 @@
 # Please see the COPYING file in the source distribution for copyright information.
 # 
 
-begin
-    require 'rubygems'
-    gem 'test-unit'
-rescue LoadError
-end
+require 'rubygems'
+require 'rubygems/package_task'
+require 'rake/testtask'
+require 'rdoc/task'
 
 $:.unshift 'lib'
-require 'rake/testtask'
-require 'rake/packagetask'
-require 'rake/gempackagetask'
-require 'rdoc/task'
 require 'deprecated'
+$:.shift
 
 task :default => [ :dist ]
 
@@ -34,11 +30,6 @@ end
 task :dist      => [:test, :repackage, :gem, :rdoc]
 task :distclean => [:clobber_package, :clobber_rdoc]
 task :clean     => [:distclean]
-
-task :to_blog => [:clobber_rdoc, :rdoc] do
-    sh "rm -r $git/blog/content/docs/deprecated && mv rdoc $git/blog/content/docs/deprecated"
-end
-
 
 #
 # Documentation
@@ -67,12 +58,10 @@ spec = Gem::Specification.new do |s|
     s.test_file = "test/test_deprecated.rb"
     s.rubyforge_project = 'deprecated'
     s.license = "MIT"
+    s.add_development_dependency "test-unit", ">= 0"
 end
 
-Rake::GemPackageTask.new(spec) do |s|
-end
-
-Rake::PackageTask.new(spec.name, spec.version) do |p|
+Gem::PackageTask.new(spec) do |p|
     p.need_tar_gz = true
     p.need_zip = true
     p.package_files.include("./setup.rb")

@@ -3,7 +3,9 @@
 require 'rubygems'
 gem 'test-unit'
 require 'test/unit'
-require 'lib/deprecated.rb'
+$:.unshift 'lib'
+require 'deprecated.rb'
+$:.shift
 
 # this class is used to test the deprecate functionality
 class DummyClass
