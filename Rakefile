@@ -66,6 +66,7 @@ spec = Gem::Specification.new do |s|
     s.files = Dir['Rakefile'] + Dir['lib/deprecated.rb'] + Dir['test/test_deprecated.rb']
     s.test_file = "test/test_deprecated.rb"
     s.rubyforge_project = 'deprecated'
+    s.license = "MIT"
 end
 
 Rake::GemPackageTask.new(spec) do |s|
