@@ -70,7 +70,7 @@ class DeprecatedError < StandardError; end
 # Deprecated::Module#deprecated_set_action for more information.
 #
 module Deprecated
-  VERSION = "3.0.0"
+  VERSION = "3.0.1"
 
   def __deprecated_run_action__(sym, replacement)
     if self.class.instance_eval { @__deprecated_run_action__ }
